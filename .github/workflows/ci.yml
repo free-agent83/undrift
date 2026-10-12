@@ -1,0 +1,53 @@
+name: CI
+
+# Undrift's own suite, on every Node version it supports. Node 20 is the floor in package.json, and it left
+# upstream support on 2026-04-30; it stays in the matrix because Plinth, the first adopter, still runs on it.
+# Raising the floor is a change of its own.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # `npm ci` installs from the lockfile exactly, so CI cannot silently pass on a dependency tree that no one
+      # else has.
+      - run: npm ci
+
+      - run: npm test
+
+  # Threshold set at `critical`, not `high`, and the reason is the whole point.
+  #
+  # The advisories that are known are explained in SECURITY.md: three high, in the glob matching Undrift runs on
+  # paths from a person's own configuration, with no fixed version anywhere. Failing on `high` would make this job
+  # red on every run, for issues that are already accounted for, and a job that is always red is a job nobody reads.
+  # `critical` is the level that is not already explained, so a failure means something new arrived and someone
+  # should look. Advisory as well, so it reports and does not block a change from merging.
+  audit:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=critical

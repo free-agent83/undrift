@@ -1,0 +1,53 @@
+name: Publish
+
+# A tag such as v0.1.0 publishes that version to npm with provenance, through npm's trusted publishing: the job
+# proves who it is with an OIDC token from GitHub, so no npm token is stored in the repository. The tag has to match
+# package.json's version.
+#
+# One-time setup, by the package's owner, on npmjs.com: a trusted publisher for the package `undrift`, with this
+# repository (free-agent83/undrift) and this workflow file (publish.yml). Trusted publishing needs npm 11.5.1 or later
+# and Node 22.14 or later, a GitHub-hosted runner and `id-token: write`; provenance needs a public repository.
+#
+# The job holds no token and reads no secret, as npm's own example for trusted publishing. A trusted publisher added for
+# a package that does not exist yet has to complete its first publish within two days.
+#
+# The fallback, if npmjs.com will not take a trusted publisher before the package exists, is for one release and is the
+# package owner's to make: a token saved as a repository secret and deleted after the run, passed to the publish step in
+# a `NODE_AUTH_TOKEN` variable that is added in a commit for that tag and taken out in the next. The token is a granular
+# access token with read and write on all packages (the package does not exist yet, so it cannot be limited to it) and
+# with "Bypass 2FA" ticked (a job has no code to give). The publish step then also carries `--provenance=false`.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # The job publishes: it keeps no credentials for the repository where a later step could read them.
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          # Never cache in a release build.
+          package-manager-cache: false
+
+      - run: npm install -g npm@^11.5.1
+
+      - name: The tag is the package's version
+        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+
+      - run: npm ci
+
+      - run: npm test
+
+      - run: npm publish --provenance --access public

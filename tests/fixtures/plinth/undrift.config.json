@@ -1,0 +1,70 @@
+{
+  "$schema": "../../../schema.json",
+  "system": "@plinth/components",
+  "tokens": "tokens.json",
+  "tokensCss": [
+    "tokens.css",
+    "tailwind.css"
+  ],
+  "primitives": [
+    "--color-primitive-*",
+    "--dimension-*",
+    "--shadow-primitive-*"
+  ],
+  "catalog": "CATALOG.md",
+  "exemptMarker": "token-exempt",
+  "intrinsics": {
+    "button": "Button",
+    "input": "Input",
+    "select": "Select",
+    "table": "Table",
+    "textarea": null
+  },
+  "foreignUi": [
+    "@mui/",
+    "@material-ui/",
+    "antd",
+    "@chakra-ui/",
+    "@mantine/",
+    "react-bootstrap",
+    "@headlessui/",
+    "@heroicons/",
+    "daisyui",
+    "flowbite",
+    "@nextui-org/",
+    "primereact",
+    "semantic-ui-react",
+    "grommet",
+    "evergreen-ui"
+  ],
+  "profiles": {
+    "system": {
+      "include": [
+        "packages/components/src/components/**/!(*.stories|*.test|*.test-d).tsx",
+        "packages/components/src/components/**/*.stories.tsx"
+      ],
+      "rules": [
+        "no-raw-colors",
+        "no-arbitrary-values",
+        "no-foreign-ui-imports",
+        "no-default-palette",
+        "no-primitive-tokens"
+      ]
+    },
+    "app": {
+      "include": [
+        "apps/web/app/**/*.{ts,tsx}",
+        "apps/web/lib/**/*.{ts,tsx}"
+      ],
+      "rules": [
+        "no-raw-colors",
+        "no-arbitrary-values",
+        "no-raw-elements",
+        "no-foreign-ui-imports",
+        "no-inline-style-values",
+        "no-default-palette",
+        "no-primitive-tokens"
+      ]
+    }
+  }
+}
