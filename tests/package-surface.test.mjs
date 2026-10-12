@@ -38,6 +38,12 @@ describe("the package's surface", () => {
     expect(Array.isArray((await load("undrift/unstable/init")).FOREIGN_UI)).toBe(true);
   });
 
+  // npm stores a bin path without its leading "./" and, in 0.1.0, printed a warning that the entry was removed when a
+  // manifest wrote it with one. The entry was never removed; the source says it the way npm stores it, so a publish is silent.
+  test("the bin is written as npm stores it, with no leading ./", () => {
+    expect(pkg.bin).toEqual({ undrift: "bin/undrift.mjs" });
+  });
+
   test("the manifest names the product", () => {
     expect(pkg.name).toBe("undrift");
     expect(pkg.license).toBe("MIT");

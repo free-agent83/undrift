@@ -9,9 +9,14 @@ person, so no response time is promised, and a report is read as soon as it can 
 ## Why a version should be pinned
 
 The write-time hook runs on every file a coding agent writes, with the permissions of the shell that started the
-agent. A compromised release of Undrift would run there. Each release is therefore published from GitHub Actions with
-npm provenance, which links the package on npm to the commit and the workflow that built it, and a project that
-installs Undrift should pin an exact version (`"undrift": "0.1.0"`, not `"^0.1.0"`) and update on purpose.
+agent. A compromised release of Undrift would run there.
+
+Version 0.1.0 was published from the maintainer's machine, with two-factor authentication and without npm provenance,
+so npm holds no provenance statement for that version. Later releases are published from GitHub Actions with npm
+provenance, which links the package on npm to the commit and the workflow that built it.
+
+A project that installs Undrift should pin an exact version (`"undrift": "0.1.0"`, not `"^0.1.0"`) and update on
+purpose.
 
 ## The advisory that `npm install` reports
 

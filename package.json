@@ -27,7 +27,7 @@
     "provenance": true
   },
   "bin": {
-    "undrift": "./bin/undrift.mjs"
+    "undrift": "bin/undrift.mjs"
   },
   "files": [
     "bin",
